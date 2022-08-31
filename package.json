@@ -1,15 +1,17 @@
 {
   "name": "cchs-desktop",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "primeicons": "^5.0.0",
+    "primevue": "^3.16.2",
     "register-service-worker": "^1.7.2",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
@@ -54,7 +56,19 @@
     "parserOptions": {
       "ecmaVersion": 2020
     },
-    "rules": {},
+    "rules": {
+      "semi": [
+        1,
+        "never"
+      ],
+      "quotes": [
+        1,
+        "backtick"
+      ],
+      "consistent-return": 0,
+      "import/extensions": 0,
+      "arrow-parens": 0
+    },
     "overrides": [
       {
         "files": [
