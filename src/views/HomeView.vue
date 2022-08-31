@@ -6,6 +6,7 @@
     placeholder="Select a Property"
   />
 
+  <Button v-show="unitCodes.length" label="export" @click="onExport" />
   <DataTable
     :value="unitCodes"
     editMode="cell"
@@ -36,7 +37,9 @@ import Dropdown from 'primevue/dropdown'
 import InputText from 'primevue/inputtext'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import Button from 'primevue/button'
 import { listProperties, listUnitCodes, updateUnitCode } from '@/xhr'
+import handleCSVDownload from '@/utils/export'
 
 interface UnitCode {
   id: string
@@ -68,6 +71,7 @@ export default defineComponent({
     InputText,
     DataTable,
     Column,
+    Button,
   },
   data: ():Data => ({
     selectedProperty: ``,
@@ -94,6 +98,11 @@ export default defineComponent({
           ? updatedUnitCode
           : unitCode),
       )
+    },
+    onExport() {
+      const formatedData = this.unitCodes
+        .map((x: UnitCode) => [x.unit, x.codes, x.user, x.property])
+      handleCSVDownload([`Unit`, `Codes`, `User`, `Property`], formatedData)
     },
     getUnitCodes() {
       return listUnitCodes(this.selectedProperty)
