@@ -1,34 +1,41 @@
 <template>
   <!--eslint-disable vuejs-accessibility/no-autofocus-->
+  <ProgressSpinner v-show="!properties.length" />
   <Dropdown
     v-model="selectedProperty"
     :options="properties"
+    v-show="properties.length"
     placeholder="Select a Property"
   />
 
-  <Button v-show="unitCodes.length" label="export" @click="onExport" />
-  <DataTable
-    :value="unitCodes"
-    editMode="cell"
-    @cell-edit-complete="onCellEditComplete"
-    class="editable-cells-table"
-    responsiveLayout="scroll"
-  >
-    <Column
-      v-for="col of columns"
-      :field="col.field"
-      :header="col.header"
-      :key="col.field"
-      style="width:25%"
+  <div v-show="unitCodes.length">
+    <Button v-show="unitCodes.length" label="export" @click="onExport" />
+    <DataTable
+      v-show="unitCodes.length"
+      :value="unitCodes"
+      editMode="cell"
+      @cell-edit-complete="onCellEditComplete"
+      class="editable-cells-table"
+      responsiveLayout="scroll"
     >
-      <template #editor="{ data, field }">
-          <InputText
-            v-model="data[field]"
-            autofocus
-          />
-      </template>
-    </Column>
-  </DataTable>
+      <Column
+        v-for="col of columns"
+        :field="col.field"
+        :header="col.header"
+        :key="col.field"
+        style="width:25%"
+      >
+        <template #editor="{ data, field }">
+            <InputText
+              v-model="data[field]"
+              autofocus
+            />
+        </template>
+      </Column>
+    </DataTable>
+  </div>
+  <ProgressSpinner v-show="selectedProperty && !unitCodes.length" />
+
 </template>
 
 <script lang="ts">
@@ -38,6 +45,7 @@ import InputText from 'primevue/inputtext'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
+import ProgressSpinner from 'primevue/progressspinner'
 import { listProperties, listUnitCodes, updateUnitCode } from '@/xhr'
 import handleCSVDownload from '@/utils/export'
 
@@ -72,6 +80,7 @@ export default defineComponent({
     DataTable,
     Column,
     Button,
+    ProgressSpinner,
   },
   data: ():Data => ({
     selectedProperty: ``,
