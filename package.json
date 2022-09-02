@@ -1,6 +1,6 @@
 {
   "name": "cchs-desktop",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "homepage": "https://ccsd.cotterslist.com",
   "scripts": {
@@ -71,7 +71,8 @@
       ],
       "consistent-return": 0,
       "import/extensions": 0,
-      "arrow-parens": 0
+      "arrow-parens": 0,
+      "no-use-before-define": [1, "nofunc"]
     },
     "overrides": [
       {

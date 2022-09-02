@@ -9,7 +9,18 @@
   />
 
   <div v-show="unitCodes.length">
-    <Button v-show="unitCodes.length" label="export" @click="onExport" />
+    <Button
+      v-show="unitCodes.length"
+      label="Export Completed. No Issues"
+      @click="onExport(`no issues`)"
+    />
+    <Button
+      v-show="unitCodes.length"
+      label="Export Completed With Issues"
+      @click="onExport(`issues`)"
+    />
+    <Button v-show="unitCodes.length" label="Export Incomplete" @click="onExport(`incomplete`)" />
+    <Button v-show="unitCodes.length" label="Export All" @click="onExport(`all`)" />
     <DataTable
       v-show="unitCodes.length"
       :value="unitCodes"
@@ -48,14 +59,9 @@ import Button from 'primevue/button'
 import ProgressSpinner from 'primevue/progressspinner'
 import { listProperties, listUnitCodes, updateUnitCode } from '@/xhr'
 import handleCSVDownload from '@/utils/export'
+import filteredCodes from '@/utils/filteredCodes'
+import { UnitCode } from '@/types'
 
-interface UnitCode {
-  id: string
-  unit: string
-  property: string
-  user: string
-  codes: string
-}
 interface Col {
   field: string
   header: string
@@ -108,8 +114,8 @@ export default defineComponent({
           : unitCode),
       )
     },
-    onExport() {
-      const formatedData = this.unitCodes
+    onExport(exportType: string) {
+      const formatedData = filteredCodes(exportType, this.unitCodes)
         .map((x: UnitCode) => [x.unit, x.codes, x.user, x.property])
       handleCSVDownload([`Unit`, `Codes`, `User`, `Property`], formatedData)
     },
