@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/label-has-for -->
 <template>
   <!--eslint-disable vuejs-accessibility/no-autofocus-->
   <ProgressSpinner v-show="!properties.length" />
@@ -7,23 +8,40 @@
     v-show="properties.length"
     placeholder="Select a Property"
   />
+  <spacer />
 
   <div v-show="unitCodes.length">
-    <Button
-      v-show="unitCodes.length"
-      label="Export Completed. No Issues"
-      @click="onExport(`no issues`)"
-    />
-    <Button
-      v-show="unitCodes.length"
-      label="Export Completed With Issues"
-      @click="onExport(`issues`)"
-    />
-    <Button v-show="unitCodes.length" label="Export Incomplete" @click="onExport(`incomplete`)" />
-    <Button v-show="unitCodes.length" label="Export All" @click="onExport(`all`)" />
+    <div class="btn-container">
+      <label for="all-filter">
+        <radio-button id="all-filter" name="filter" value="all" v-model="filter" />
+        All
+      </label>
+      <label for="incomplete-filter">
+        <radio-button id="incomplete-filter" name="filter" value="incomplete" v-model="filter" />
+        Incomplete
+      </label>
+      <label for="issues-filter">
+        <radio-button
+          id="issues-filter"
+          name="filter"
+          value="issues"
+          v-model="filter"
+        />
+        Completed with issues
+      </label>
+      <label for="good-filter">
+        <radio-button name="filter" value="no issues" v-model="filter" />
+        Completed no issues
+      </label>
+      <Button
+        label="Export"
+        @click="onExport"
+        class="p-button-link"
+      />
+    </div>
+    <spacer />
     <DataTable
-      v-show="unitCodes.length"
-      :value="unitCodes"
+      :value="visibleUnitCodes"
       editMode="cell"
       @cell-edit-complete="onCellEditComplete"
       class="editable-cells-table"
@@ -51,11 +69,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Spacer from '@/components/Spacer.vue'
 import Dropdown from 'primevue/dropdown'
 import InputText from 'primevue/inputtext'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
+import RadioButton from 'primevue/radiobutton'
 import ProgressSpinner from 'primevue/progressspinner'
 import { listProperties, listUnitCodes, updateUnitCode } from '@/xhr'
 import handleCSVDownload from '@/utils/export'
@@ -71,6 +91,8 @@ interface Data {
   properties: string[]
   unitCodes: UnitCode[]
   columns: Col[]
+  visibleUnitCodes: UnitCode[]
+  filter: string
 }
 interface Obj {
   [key: string]: Obj | string | number | Obj[]
@@ -87,20 +109,29 @@ export default defineComponent({
     Column,
     Button,
     ProgressSpinner,
+    Spacer,
+    RadioButton,
   },
   data: ():Data => ({
     selectedProperty: ``,
     properties: [],
     unitCodes: [],
+    visibleUnitCodes: [],
     columns: [
       { field: `unit`, header: `Unit` },
       { field: `codes`, header: `Codes` },
       { field: `user`, header: `User` },
     ],
+    filter: `all`,
   }),
   watch: {
     async selectedProperty(_) {
-      this.unitCodes = await this.getUnitCodes()
+      const codes = await this.getUnitCodes()
+      this.unitCodes = codes
+      this.visibleUnitCodes = codes
+    },
+    filter(val) {
+      this.visibleUnitCodes = filteredCodes(val, this.unitCodes)
     },
   },
   async mounted() {
@@ -109,14 +140,15 @@ export default defineComponent({
   methods: {
     async onCellEditComplete(cell: any) {
       const updatedUnitCode = await updateUnitCode(cell.newData)
+      // TODO: test edit when filtered
       this.unitCodes = this.unitCodes.map(
         (unitCode: UnitCode): UnitCode => (unitCode.id === updatedUnitCode.id
           ? updatedUnitCode
           : unitCode),
       )
     },
-    onExport(exportType: string) {
-      const formatedData = filteredCodes(exportType, this.unitCodes)
+    onExport() {
+      const formatedData = this.visibleUnitCodes
         .map((x: UnitCode) => [x.unit, x.codes, x.user, x.property])
       handleCSVDownload([`Unit`, `Codes`, `User`, `Property`], formatedData)
     },
@@ -126,3 +158,11 @@ export default defineComponent({
   },
 })
 </script>
+<style>
+  .btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+</style>
