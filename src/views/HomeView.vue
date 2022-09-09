@@ -95,6 +95,7 @@ export default defineComponent({
     columns: [
       { field: `unit`, header: `Unit` },
       { field: `codes`, header: `Codes` },
+      { field: `user`, header: `User` },
     ],
   }),
   watch: {
