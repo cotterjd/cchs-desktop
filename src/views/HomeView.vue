@@ -81,6 +81,7 @@ import { listProperties, listUnitCodes, updateUnitCode } from '@/xhr'
 import handleCSVDownload from '@/utils/export'
 import filteredCodes from '@/utils/filteredCodes'
 import { UnitCode } from '@/types'
+import { format } from 'date-fns'
 
 interface Col {
   field: string
@@ -121,14 +122,16 @@ export default defineComponent({
       { field: `unit`, header: `Unit` },
       { field: `codes`, header: `Codes` },
       { field: `user`, header: `User` },
+      { field: `createdAt`, header: `Date Serviced` },
     ],
     filter: `all`,
   }),
   watch: {
     async selectedProperty(_) {
       const codes = await this.getUnitCodes()
-      this.unitCodes = codes
-      this.visibleUnitCodes = codes
+      const codesWithCSTTimezone = getCodesWithCSTTimezone(codes)
+      this.unitCodes = codesWithCSTTimezone
+      this.visibleUnitCodes = codesWithCSTTimezone
     },
     filter(val) {
       this.visibleUnitCodes = filteredCodes(val, this.unitCodes)
@@ -157,6 +160,13 @@ export default defineComponent({
     },
   },
 })
+
+function getCodesWithCSTTimezone(codes: UnitCode[]) {
+  return codes.map((code: UnitCode) => ({
+    ...code,
+    createdAt: format(new Date(code.createdAt), `Pp`),
+  }))
+}
 </script>
 <style>
   .btn-container {

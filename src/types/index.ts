@@ -4,4 +4,6 @@ export interface UnitCode {
   property: string
   user: string
   codes: string
+  createdAt: string
+  updatedAt: string
 }
