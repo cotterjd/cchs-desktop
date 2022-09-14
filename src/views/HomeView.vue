@@ -42,8 +42,6 @@
     <spacer />
     <DataTable
       :value="visibleUnitCodes"
-      editMode="cell"
-      @cell-edit-complete="onCellEditComplete"
       class="editable-cells-table"
       responsiveLayout="scroll"
     >
@@ -141,6 +139,7 @@ export default defineComponent({
     this.properties = await listProperties()
   },
   methods: {
+    // NOT IN USE
     async onCellEditComplete(cell: any) {
       const updatedUnitCode = await updateUnitCode(cell.newData)
       // TODO: test edit when filtered
