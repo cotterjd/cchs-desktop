@@ -162,10 +162,17 @@ export default defineComponent({
 })
 
 function getCodesWithCSTTimezone(codes: UnitCode[]) {
-  return codes.map((code: UnitCode) => ({
-    ...code,
-    createdAt: format(new Date(code.createdAt), `Pp`),
-  }))
+  return codes.map((code: UnitCode) => {
+    try {
+      const createdAt = format(new Date(code.createdAt), `Pp`)
+      return {
+        ...code,
+        createdAt,
+      }
+    } catch (e) {
+      return code
+    }
+  })
 }
 </script>
 <style>
