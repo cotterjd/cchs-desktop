@@ -163,15 +163,13 @@ export default defineComponent({
 
 function getCodesWithCSTTimezone(codes: UnitCode[]) {
   return codes.map((code: UnitCode) => {
-    try {
+    if (code.createdAt) {
       const createdAt = format(new Date(code.createdAt), `Pp`)
       return {
         ...code,
         createdAt,
       }
-    } catch (e) {
-      return code
-    }
+    } return code
   })
 }
 </script>
