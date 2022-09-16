@@ -10,5 +10,8 @@ export default (filterType: string, unitCodes: UnitCode[]): UnitCode[] => {
 
 // Won't handle multiple codes
 function filterCodes(allCodes: UnitCode[], codes: string[]): UnitCode[] {
-  return allCodes.filter((x: UnitCode) => codes.includes(x.codes))
+  return allCodes.filter((x: UnitCode) => {
+    const withoutWentBack: string[] = x.codes.split(`, `).filter((str: string) => str !== `Went Back`)
+    return codes.includes(withoutWentBack[0])
+  })
 }

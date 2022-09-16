@@ -8,7 +8,6 @@ export const incompleteCodes: string[] = [
   `Skip Per Management`,
   `Minor`,
   `Denied Entry`,
-  `see css`,
   `OTHER`,
 ]
 
@@ -29,7 +28,6 @@ export const issueCodes: string[] = [
   `Missing Back Refractory Panel`,
   `Missing Right Refractory Panel`,
   `Missing Base Panel`,
-  `see  css`,
   `Went Back`,
 ]
 
