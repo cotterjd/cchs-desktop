@@ -39,7 +39,7 @@
         class="p-button-link"
       />
     </div>
-    <spacer />
+    <p style="display: flex; justify-content: left;">Results: {{visibleUnitCodes.length}}</p>
     <DataTable
       :value="visibleUnitCodes"
       class="editable-cells-table"
