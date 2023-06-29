@@ -2,9 +2,11 @@
 <template>
   <!--eslint-disable vuejs-accessibility/no-autofocus-->
   <ProgressSpinner v-show="!properties.length" />
-  <Dropdown
+  <AutoComplete
     v-model="selectedProperty"
-    :options="properties"
+    :suggestions="properties"
+    dropdown
+    @complete="search"
     v-show="properties.length"
     placeholder="Select a Property"
   />
@@ -68,7 +70,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Spacer from '@/components/Spacer.vue'
-import Dropdown from 'primevue/dropdown'
+import AutoComplete from 'primevue/autocomplete'
 import InputText from 'primevue/inputtext'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -102,7 +104,7 @@ const logObj = (label: string, obj: Obj | Obj[] | UnitCode) => {
 export default defineComponent({
   name: `HomeView`,
   components: {
-    Dropdown,
+    AutoComplete,
     InputText,
     DataTable,
     Column,
@@ -140,7 +142,7 @@ export default defineComponent({
   },
   methods: {
     // NOT IN USE
-    async onCellEditComplete(cell: any) {
+    async onCellEditComplete(cell) {
       const updatedUnitCode = await updateUnitCode(cell.newData)
       // TODO: test edit when filtered
       this.unitCodes = this.unitCodes.map(
@@ -156,6 +158,12 @@ export default defineComponent({
     },
     getUnitCodes() {
       return listUnitCodes(this.selectedProperty)
+    },
+    search(evt) {
+      const properties = [...this.properties]
+      this.properties = evt.query
+        ? properties.filter((x) => x.toLowerCase().includes(evt.query.toLowerCase()))
+        : properties
     },
   },
 })
