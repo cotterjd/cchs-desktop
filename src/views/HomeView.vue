@@ -2,14 +2,17 @@
 <template>
   <!--eslint-disable vuejs-accessibility/no-autofocus-->
   <ProgressSpinner v-show="!properties.length" />
+  <!--fix this derpy autocomplete. every second dropdown or so stalls-->
   <AutoComplete
     v-model="selectedProperty"
-    :suggestions="properties"
+    :suggestions="visibleProperties"
     dropdown
     @complete="search"
+    @item-select="getUnitCodes"
     v-show="properties.length"
     placeholder="Select a Property"
   />
+  <Calendar v-model="date" showIcon />
   <spacer />
 
   <div v-show="unitCodes.length">
@@ -71,6 +74,7 @@
 import { defineComponent } from 'vue'
 import Spacer from '@/components/Spacer.vue'
 import AutoComplete from 'primevue/autocomplete'
+import Calendar from 'primevue/calendar'
 import InputText from 'primevue/inputtext'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -90,21 +94,26 @@ interface Col {
 interface Data {
   selectedProperty: string
   properties: string[]
+  visibleProperties: string[]
   unitCodes: UnitCode[]
   columns: Col[]
+  date?: Date
   visibleUnitCodes: UnitCode[]
   filter: string
 }
 interface Obj {
   [key: string]: Obj | string | number | Obj[]
 }
-const logObj = (label: string, obj: Obj | Obj[] | UnitCode) => {
+
+type LogObj = (label: string, obj: Obj | Obj[] | UnitCode) => void
+const logObj: LogObj = (label, obj) => { // eslint-disable-line @typescript-eslint/no-unused-vars
   console.log(JSON.parse(JSON.stringify(obj))) // eslint-disable-line no-console
 }
 export default defineComponent({
   name: `HomeView`,
   components: {
     AutoComplete,
+    Calendar,
     InputText,
     DataTable,
     Column,
@@ -116,8 +125,10 @@ export default defineComponent({
   data: ():Data => ({
     selectedProperty: ``,
     properties: [],
+    visibleProperties: [],
     unitCodes: [],
     visibleUnitCodes: [],
+    date: null,
     columns: [
       { field: `unit`, header: `Unit` },
       { field: `codes`, header: `Codes` },
@@ -127,14 +138,11 @@ export default defineComponent({
     filter: `all`,
   }),
   watch: {
-    async selectedProperty(_) {
-      const codes = await this.getUnitCodes()
-      const codesWithCSTTimezone = getCodesWithCSTTimezone(codes)
-      this.unitCodes = codesWithCSTTimezone
-      this.visibleUnitCodes = codesWithCSTTimezone
-    },
     filter(val) {
       this.visibleUnitCodes = filteredCodes(val, this.unitCodes)
+    },
+    async date(_) {
+      this.getUnitCodes()
     },
   },
   async mounted() {
@@ -156,14 +164,21 @@ export default defineComponent({
         .map((x: UnitCode) => [x.unit, x.codes, x.user, x.property])
       handleCSVDownload([`Unit`, `Codes`, `User`, `Property`], formatedData)
     },
-    getUnitCodes() {
-      return listUnitCodes(this.selectedProperty)
+    async getUnitCodes() {
+      const codes = await listUnitCodes(this.selectedProperty, this.date)
+      const codesWithCSTTimezone = getCodesWithCSTTimezone(codes)
+      this.unitCodes = codesWithCSTTimezone
+      this.visibleUnitCodes = codesWithCSTTimezone
+      this.visibleProperties = this.properties
     },
     search(evt) {
-      const properties = [...this.properties]
-      this.properties = evt.query
-        ? properties.filter((x) => x.toLowerCase().includes(evt.query.toLowerCase()))
-        : properties
+      if (!evt.query) {
+        this.visibleProperties = this.properties
+      } else {
+        this.visibleProperties = this.properties.filter(
+          (x) => x.toLowerCase().includes(evt.query.toLowerCase())
+        )
+      }
     },
   },
 })
