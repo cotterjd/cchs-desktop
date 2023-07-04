@@ -15,7 +15,7 @@
   <Calendar v-model="date" showIcon />
   <spacer />
   <p v-show="!fetching && !unitCodes.length">
-    No results found for property "{{property}}" and date "{{getFormattedDate(date)}}"
+    No results found for property "{{selectedProperty}}" and date "{{getFormattedDate(date)}}"
   </p>
   <div v-show="unitCodes.length">
     <div class="btn-container">
