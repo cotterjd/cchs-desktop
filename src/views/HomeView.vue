@@ -1,7 +1,7 @@
 <!-- eslint-disable vuejs-accessibility/label-has-for -->
 <template>
   <!--eslint-disable vuejs-accessibility/no-autofocus-->
-  <ProgressSpinner v-show="!properties.length" />
+  <ProgressSpinner v-show="fetching" />
   <!--fix this derpy autocomplete. every second dropdown or so stalls-->
   <AutoComplete
     v-model="selectedProperty"
@@ -66,7 +66,7 @@
       </Column>
     </DataTable>
   </div>
-  <ProgressSpinner v-show="selectedProperty && !unitCodes.length" />
+  <ProgressSpinner v-show="fetching" />
 
 </template>
 
@@ -81,7 +81,7 @@ import Column from 'primevue/column'
 import Button from 'primevue/button'
 import RadioButton from 'primevue/radiobutton'
 import ProgressSpinner from 'primevue/progressspinner'
-import { listProperties, listUnitCodes, updateUnitCode } from '@/xhr'
+import { listProperties, listUnitCodes } from '@/xhr'
 import handleCSVDownload from '@/utils/export'
 import filteredCodes from '@/utils/filteredCodes'
 import { UnitCode } from '@/types'
@@ -100,6 +100,7 @@ interface Data {
   date?: Date
   visibleUnitCodes: UnitCode[]
   filter: string
+  fetching: boolean
 }
 interface Obj {
   [key: string]: Obj | string | number | Obj[]
@@ -134,8 +135,10 @@ export default defineComponent({
       { field: `codes`, header: `Codes` },
       { field: `user`, header: `User` },
       { field: `createdAt`, header: `Date Serviced` },
+      { field: `property`, header: `Property` },
     ],
     filter: `all`,
+    fetching: false,
   }),
   watch: {
     filter(val) {
@@ -149,27 +152,19 @@ export default defineComponent({
     this.properties = await listProperties()
   },
   methods: {
-    // NOT IN USE
-    async onCellEditComplete(cell) {
-      const updatedUnitCode = await updateUnitCode(cell.newData)
-      // TODO: test edit when filtered
-      this.unitCodes = this.unitCodes.map(
-        (unitCode: UnitCode): UnitCode => (unitCode.id === updatedUnitCode.id
-          ? updatedUnitCode
-          : unitCode),
-      )
-    },
     onExport() {
       const formatedData = this.visibleUnitCodes
         .map((x: UnitCode) => [x.unit, x.codes, x.user, x.property])
       handleCSVDownload([`Unit`, `Codes`, `User`, `Property`], formatedData)
     },
     async getUnitCodes() {
+      this.fetching = true
       const codes = await listUnitCodes(this.selectedProperty, this.date)
       const codesWithCSTTimezone = getCodesWithCSTTimezone(codes)
       this.unitCodes = codesWithCSTTimezone
       this.visibleUnitCodes = codesWithCSTTimezone
       this.visibleProperties = this.properties
+      this.fetching = false;
     },
     search(evt) {
       if (!evt.query) {

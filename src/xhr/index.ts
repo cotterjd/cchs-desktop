@@ -14,10 +14,8 @@ export const deleteUnitCode = (id: string) => fetch(`${url}/unitcode/${id}`, {
   method: `DELETE`,
 })
 
-export const listUnitCodes = (job: string, date: Date) => {
-  return fetch(`${url}/unitcodes?job=${encodeURIComponent(job)}&date=${date ? encodeURIComponent(date.toISOString()) : ``}`)
-    .then((r) => r.json())
-}
+export const listUnitCodes = (job: string, date: Date) => fetch(`${url}/unitcodes?job=${encodeURIComponent(job)}&date=${date ? encodeURIComponent(date.toISOString()) : ``}`)
+  .then((r) => r.json())
 
 export const saveUnitCodes = (deviceId: string, unitName: string, chosenCodes: string[], jobName: string) => fetch(`${url}/unitcode`, {
   method: `POST`,
