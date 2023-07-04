@@ -14,7 +14,9 @@
   />
   <Calendar v-model="date" showIcon />
   <spacer />
-
+  <p v-show="!fetching && !unitCodes.length">
+    No results found for property "{{property}}" and date "{{getFormattedDate(date)}}"
+  </p>
   <div v-show="unitCodes.length">
     <div class="btn-container">
       <label for="all-filter">
@@ -156,6 +158,10 @@ export default defineComponent({
       const formatedData = this.visibleUnitCodes
         .map((x: UnitCode) => [x.unit, x.codes, x.user, x.property])
       handleCSVDownload([`Unit`, `Codes`, `User`, `Property`], formatedData)
+    },
+    getFormattedDate(date: Date) {
+      if (!date) return ``
+      return format(date, `P`)
     },
     async getUnitCodes() {
       this.fetching = true
