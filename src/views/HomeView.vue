@@ -1,7 +1,7 @@
 <!-- eslint-disable vuejs-accessibility/label-has-for -->
 <template>
   <!--eslint-disable vuejs-accessibility/no-autofocus-->
-  <ProgressSpinner v-show="fetching" />
+  <ProgressSpinner v-show="!properties.length" />
   <!--fix this derpy autocomplete. every second dropdown or so stalls-->
   <AutoComplete
     v-model="selectedProperty"
