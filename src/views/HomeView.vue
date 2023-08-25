@@ -155,9 +155,14 @@ export default defineComponent({
   },
   methods: {
     onExport() {
-      const formatedData = this.visibleUnitCodes
-        .map((x: UnitCode) => [x.unit, x.codes, x.user, x.property])
-      handleCSVDownload([`Unit`, `Codes`, `User`, `Property`], formatedData)
+      const formatedData = this.visibleUnitCodes.map((x: UnitCode) => [
+        x.unit,
+        x.codes,
+        x.user,
+        x.property,
+        x.createdAt,
+      ])
+      handleCSVDownload([`Unit`, `Codes`, `User`, `Property`, `Date Serviced`], formatedData)
     },
     getFormattedDate(date: Date) {
       if (!date) return ``
