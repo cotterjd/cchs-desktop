@@ -1,6 +1,6 @@
 {
   "name": "cchs-desktop",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "private": true,
   "homepage": "https://ccsd.cotterslist.com",
   "scripts": {
@@ -88,10 +88,11 @@
       ],
       "@typescript-eslint/no-unused-vars": [
         1,
-        { "args": "none", "varIgnorePattern": "_|log" } 
+        { "args": "none", "varIgnorePattern": "_" } 
       ],
       "implicit-arrow-linebreak": 0,
-      "function-paren-newline": 0
+      "function-paren-newline": 0,
+      "@typescript-eslint/no-var-requires": 0
     },
     "overrides": [
       {
