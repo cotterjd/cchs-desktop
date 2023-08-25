@@ -85,7 +85,13 @@
       "no-use-before-define": [
         1,
         "nofunc"
-      ]
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        1,
+        { "args": "none", "varIgnorePattern": "_|log" } 
+      ],
+      "implicit-arrow-linebreak": 0,
+      "function-paren-newline": 0
     },
     "overrides": [
       {
