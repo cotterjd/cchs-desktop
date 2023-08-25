@@ -88,7 +88,7 @@
       ],
       "@typescript-eslint/no-unused-vars": [
         1,
-        { "args": "none", "varIgnorePattern": "_" } 
+        { "args": "none", "varsIgnorePattern": "_" } 
       ],
       "implicit-arrow-linebreak": 0,
       "function-paren-newline": 0,
