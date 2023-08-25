@@ -14,7 +14,8 @@ export default (columns: string[], data: any[]) => {
 
   const link = document.createElement(`a`)
   link.setAttribute(`href`, downloadURI)
-  link.setAttribute(`download`, `tableDownload.csv`)
+  const name = data[0][3].split(` `).join(``);
+  link.setAttribute(`download`, `${name}.csv`)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
