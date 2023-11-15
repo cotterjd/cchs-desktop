@@ -56,16 +56,17 @@
         v-for="col of columns"
         :field="col.field"
         :header="col.header"
+        sortable
         :key="col.field"
         style="width:25%"
-      >
-        <template #editor="{ data, field }">
+      />
+      <!-- <template #editor="{ data, field }">
             <InputText
               v-model="data[field]"
               autofocus
             />
         </template>
-      </Column>
+      </Column>-->
     </DataTable>
   </div>
   <ProgressSpinner v-show="fetching" />
@@ -77,7 +78,7 @@ import { defineComponent } from 'vue'
 import Spacer from '@/components/Spacer.vue'
 import AutoComplete from 'primevue/autocomplete'
 import Calendar from 'primevue/calendar'
-import InputText from 'primevue/inputtext'
+// import InputText from 'primevue/inputtext'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -117,7 +118,7 @@ export default defineComponent({
   components: {
     AutoComplete,
     Calendar,
-    InputText,
+    // InputText,
     DataTable,
     Column,
     Button,
@@ -175,7 +176,7 @@ export default defineComponent({
       this.unitCodes = codesWithCSTTimezone
       this.visibleUnitCodes = codesWithCSTTimezone
       this.visibleProperties = this.properties
-      this.fetching = false;
+      this.fetching = false
     },
     search(evt) {
       if (!evt.query) {
