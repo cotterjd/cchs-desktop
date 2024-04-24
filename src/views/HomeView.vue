@@ -13,9 +13,20 @@
     placeholder="Select a Property"
   />
   <Calendar v-model="date" showIcon />
+  <!-- this dropdown should be by filter buttons
+    which are clientside, the other inputs up here are serverside-->
+  <Dropdown
+    v-model="user"
+    :options="users"
+    placeholder="Select a tech"
+    @change="onChangeUser"
+  />
   <spacer />
   <p v-show="!fetching && !unitCodes.length">
     No results found for property "{{selectedProperty}}" and date "{{getFormattedDate(date)}}"
+  </p>
+  <p v-show="!fetching && !unitCodes.length && !date && user">
+    Please select a date to see results
   </p>
   <div v-show="unitCodes.length">
     <div class="btn-container">
@@ -37,8 +48,7 @@
         Completed with issues
       </label>
       <label for="good-filter">
-        <radio-button name="filter" value="no issues" v-model="filter" />
-        Completed no issues
+        <radio-button name="filter" value="no issues" v-model="filter" /> Completed no issues
       </label>
       <Button
         label="Export"
@@ -77,6 +87,7 @@
 import { defineComponent } from 'vue'
 import Spacer from '@/components/Spacer.vue'
 import AutoComplete from 'primevue/autocomplete'
+import Dropdown from 'primevue/dropdown'
 import Calendar from 'primevue/calendar'
 // import InputText from 'primevue/inputtext'
 import DataTable from 'primevue/datatable'
@@ -84,7 +95,7 @@ import Column from 'primevue/column'
 import Button from 'primevue/button'
 import RadioButton from 'primevue/radiobutton'
 import ProgressSpinner from 'primevue/progressspinner'
-import { listProperties, listUnitCodes } from '@/xhr'
+import { listProperties, listUnitCodes, listUsers } from '@/xhr'
 import handleCSVDownload from '@/utils/export'
 import filteredCodes from '@/utils/filteredCodes'
 import { UnitCode } from '@/types'
@@ -104,6 +115,8 @@ interface Data {
   visibleUnitCodes: UnitCode[]
   filter: string
   fetching: boolean
+  users: any[]
+  user: string
 }
 interface Obj {
   [key: string]: Obj | string | number | Obj[]
@@ -120,6 +133,7 @@ export default defineComponent({
     Calendar,
     // InputText,
     DataTable,
+    Dropdown,
     Column,
     Button,
     ProgressSpinner,
@@ -142,10 +156,12 @@ export default defineComponent({
     ],
     filter: `all`,
     fetching: false,
+    users: [],
+    user: ``,
   }),
   watch: {
     filter(val) {
-      this.visibleUnitCodes = filteredCodes(val, this.unitCodes)
+      this.visibleUnitCodes = filteredCodes(val, this.unitCodes, this.user)
     },
     async date(_) {
       this.getUnitCodes()
@@ -153,6 +169,9 @@ export default defineComponent({
   },
   async mounted() {
     this.properties = await listProperties()
+    const users = await listUsers()
+    this.users = [``, ...users] // add option to de-select
+    // this.visibleUnitCodes = this.visibleUnitCodes.filter(vuc => )
   },
   methods: {
     onExport() {
@@ -165,6 +184,9 @@ export default defineComponent({
       ])
       handleCSVDownload([`Unit`, `Codes`, `User`, `Property`, `Date Serviced`], formatedData)
     },
+    onChangeUser() {
+      this.getUnitCodes();
+    },
     getFormattedDate(date: Date) {
       if (!date) return ``
       return format(date, `P`)
@@ -175,6 +197,9 @@ export default defineComponent({
       const codesWithCSTTimezone = getCodesWithCSTTimezone(codes)
       this.unitCodes = codesWithCSTTimezone
       this.visibleUnitCodes = codesWithCSTTimezone
+      if (this.user) {
+        this.visibleUnitCodes = this.visibleUnitCodes.filter(code => code.user === this.user)
+      }
       this.visibleProperties = this.properties
       this.fetching = false
     },

@@ -2,6 +2,8 @@ const url = process.env.VUE_APP_BE_URL
 
 export const listProperties = () => fetch(`${url}/properties`).then(r => r.json())
 
+export const listUsers = () => fetch(`${url}/users`).then(r => r.json())
+
 export const updateUnitCode = (unitCode) => fetch(`${url}/unitcode/${unitCode.id}`, {
   method: `PUT`,
   body: JSON.stringify(unitCode),
