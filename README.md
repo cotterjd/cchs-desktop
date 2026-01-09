@@ -5,6 +5,10 @@
 yarn install
 ```
 
+```
+$ vim .env # populate VUE_APP_BE_URL
+```
+
 ### Compiles and hot-reloads for development
 ```
 yarn serve
