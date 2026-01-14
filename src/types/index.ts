@@ -6,4 +6,5 @@ export interface UnitCode {
   codes: string
   createdAt: string
   updatedAt: string
+  image?: string
 }

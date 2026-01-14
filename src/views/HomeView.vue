@@ -70,6 +70,17 @@
         :key="col.field"
         style="width:25%"
       />
+      <Column header="Image" style="width:10%">
+        <template #body="slotProps">
+          <i
+            v-if="slotProps.data.image"
+            class="pi pi-image"
+            style="font-size: 1.5rem; cursor: pointer; color: #6366f1;"
+            @click="viewImage(slotProps.data.image)"
+            title="View Image"
+          />
+        </template>
+      </Column>
       <!-- <template #editor="{ data, field }">
             <InputText
               v-model="data[field]"
@@ -78,6 +89,19 @@
         </template>
       </Column>-->
     </DataTable>
+    <Dialog
+      v-model:visible="imageDialogVisible"
+      header="Unit Image"
+      :modal="true"
+      :style="{width: '50vw'}"
+    >
+      <img
+        v-if="currentImage"
+        :src="currentImage"
+        alt="Unit image"
+        style="width: 100%; height: auto;"
+      />
+    </Dialog>
   </div>
   <ProgressSpinner v-show="fetching" />
 
@@ -95,6 +119,7 @@ import Column from 'primevue/column'
 import Button from 'primevue/button'
 import RadioButton from 'primevue/radiobutton'
 import ProgressSpinner from 'primevue/progressspinner'
+import Dialog from 'primevue/dialog'
 import { listProperties, listUnitCodes, listUsers } from '@/xhr'
 import handleCSVDownload from '@/utils/export'
 import filteredCodes from '@/utils/filteredCodes'
@@ -117,6 +142,8 @@ interface Data {
   fetching: boolean
   users: any[]
   user: string
+  imageDialogVisible: boolean
+  currentImage: string
 }
 interface Obj {
   [key: string]: Obj | string | number | Obj[]
@@ -139,6 +166,7 @@ export default defineComponent({
     ProgressSpinner,
     Spacer,
     RadioButton,
+    Dialog,
   },
   data: ():Data => ({
     selectedProperty: ``,
@@ -158,10 +186,17 @@ export default defineComponent({
     fetching: false,
     users: [],
     user: ``,
+    imageDialogVisible: false,
+    currentImage: ``,
   }),
   watch: {
     filter(val) {
       this.visibleUnitCodes = filteredCodes(val, this.unitCodes, this.user)
+    },
+    imageDialogVisible(val) {
+      if (!val) {
+        this.currentImage = ``
+      }
     },
     async date(_) {
       this.getUnitCodes()
@@ -185,7 +220,7 @@ export default defineComponent({
       handleCSVDownload([`Unit`, `Codes`, `User`, `Property`, `Date Serviced`], formatedData)
     },
     onChangeUser() {
-      this.getUnitCodes();
+      this.getUnitCodes()
     },
     getFormattedDate(date: Date) {
       if (!date) return ``
@@ -193,7 +228,7 @@ export default defineComponent({
     },
     async getUnitCodes() {
       this.fetching = true
-      const codes = await listUnitCodes(this.selectedProperty, this.date)
+      const codes = await listUnitCodes(this.selectedProperty, this.date, this.user)
       const codesWithCSTTimezone = getCodesWithCSTTimezone(codes)
       this.unitCodes = codesWithCSTTimezone
       this.visibleUnitCodes = codesWithCSTTimezone
@@ -211,6 +246,17 @@ export default defineComponent({
           (x) => x.toLowerCase().includes(evt.query.toLowerCase())
         )
       }
+    },
+    viewImage(imageData: any) {
+      const uint8 = new Uint8Array(imageData.data)
+      let binary = ``
+      const len = uint8.byteLength
+      for (let i = 0; i < len; i += 1) {
+        binary += String.fromCharCode(uint8[i])
+      }
+      const base64 = window.btoa(binary)
+      this.currentImage = `data:image/jpeg;base64,${base64}`
+      this.imageDialogVisible = true
     },
   },
 })
